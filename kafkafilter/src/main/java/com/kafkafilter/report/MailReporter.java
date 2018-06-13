@@ -24,9 +24,10 @@ public class MailReporter extends Reporter{
     @Override
     public void report(Incident incident) {
 
-        final String subject = configurationRegistry.getConfig(ReporterConfiguration.class).getSender();
+        final String subject = configurationRegistry.getConfig(ReporterConfiguration.class).getSubject();
         final String from = configurationRegistry.getConfig(ReporterConfiguration.class).getSender();
         final String to = configurationRegistry.getConfig(ReporterConfiguration.class).getRecepient();
+
         MailRequest mailRequest = new MailRequest(subject, from, to).htmlPart(incident.getDescription()).textPart("test");
 
         sendMail(mailRequest);
@@ -49,7 +50,7 @@ public class MailReporter extends Reporter{
                 MimeMessage msg = mailRequest.createMimeMessage(session);
                 Transport.send(msg);
             } catch (Exception e) {
-
+                throw new Exception("exception: " + e);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

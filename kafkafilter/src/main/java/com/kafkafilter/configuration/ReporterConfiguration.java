@@ -14,8 +14,8 @@ public class ReporterConfiguration extends ConfigurationOptionProvider {
     private static final String STMP = "stmp";
     private static final String SUBJECT = "subject";
 
-    private static final String USERNAME = "******"; //change accordingly
-    private static final String PASSWORD = "******"; //change accordingly
+//    private static final String USERNAME = "******"; //change accordingly
+//    private static final String PASSWORD = "******"; //change accordingly
 
 
     private final ConfigurationOption<String> sender = ConfigurationOption.stringOption()
@@ -23,7 +23,7 @@ public class ReporterConfiguration extends ConfigurationOptionProvider {
             .configurationCategory(EMAIL_CATEGORY)
             .description("")
             .dynamic(true)
-            .buildWithDefault("lizongyang@alumni.usc.edu");
+            .buildWithDefault("cszongyang@gmail.com");
 
     private final ConfigurationOption<String> recepient = ConfigurationOption.stringOption()
             .key(EMAIL_RECIPIENT)

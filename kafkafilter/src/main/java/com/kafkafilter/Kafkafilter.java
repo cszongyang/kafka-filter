@@ -47,8 +47,8 @@ public class KafkaFilter {
                 .build();
 
         sender = new ReportSender(configurationRegistry);
-        Incident incident = new Incident("liziongyang");
-        sender.send(incident);
+//        Incident incident = new Incident("liziongyang");
+//        sender.send(incident);
 
 //        String[] directories, String[] classNames, int pollingIntervalSeconds
         String[] directories = new String[]{"/Users/zongyangli/Workspace/javaproject/kafka-filter/kafkafilter/src/main/java/com/kafkafilter/filter/"};
@@ -63,7 +63,7 @@ public class KafkaFilter {
             e.printStackTrace();
         }
 
-//        runStream();
+        runStream();
     }
 
 
@@ -93,29 +93,19 @@ public class KafkaFilter {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         KStreamBuilder builder = new KStreamBuilder();
-        KStream<String, PageView> views = builder.stream(stringSerde, pageMessageSerde, "pageviews");
-        KTable<String, UserProfile> profiles = builder.table(stringSerde, profileMessageSerde, "userprofile", "profile-store");
-        KStream<String, Search> searches = builder.stream(stringSerde, searchMessageSerde, "search");
+        KStream<String, PageView> stream = builder.stream(stringSerde, pageMessageSerde, "pageviews");
 
-        KStream<String, UserActivity> viewsWithProfile = views.leftJoin(profiles,
-                (page, profile) -> {
-
-                    for (Filter filter : fl.getAllFilters()) {
-                        if (filter.shouldFilter(page)) {
-                            Incident incident = new Incident(filter.filterName());
-                            sender.send(incident);
-                        }
-                    }
-
-                    if (profile != null) {
-//                        return new UserActivity(profile.getUserID(), profile.getUserName(), profile.getZipcode(), profile.getInterests(), "", page.getPage());
-                    }
-                    else {
-//                        return new UserActivity(-1, "", "", null, "", page.getPage());
-                    }
-                    return null;
-
-                });
+        KStream<String, PageView> dest_stream = stream.filterNot((key, page) -> {
+            boolean flag = false;
+            for (Filter filter : fl.getAllFilters()) {
+                if (filter.shouldFilter(page)) {
+                    Incident incident = new Incident(filter.filterName());
+                    sender.send(incident);
+                    flag = true;
+                }
+            }
+            return flag;
+        }).through(stringSerde, pageMessageSerde, "output");
 
         KafkaStreams streams = new KafkaStreams(builder, props);
         streams.cleanUp();

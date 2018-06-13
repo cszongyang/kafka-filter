@@ -25,10 +25,11 @@ class SampleFilter implements Filter{
 
     @Override
     boolean shouldFilter(Object msg) {
-        if (msg.userID == 86) {
+        if (msg.userID == "86") {
             true
+        } else {
+            return false
         }
-        return false
     }
 
 }
